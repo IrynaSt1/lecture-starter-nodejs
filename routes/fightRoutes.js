@@ -9,5 +9,25 @@ import { responseMiddleware } from "../middlewares/response.middleware.js";
 const router = Router();
 
 // OPTIONAL TODO: Implement route controller for fights
+router.post(
+  "/",
+  (req, res, next) => {
+    const { winnerId, loserId, logs } = req.body;
+
+    try {
+      res.data = fightersService.create({
+        fighter1: winnerId,
+        fighter2: loserId,
+        logs,
+      });
+    } catch (err) {
+      res.err = err;
+      res.status(400);
+    } finally {
+      next();
+    }
+  },
+  responseMiddleware
+);
 
 export { router };

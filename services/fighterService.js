@@ -2,47 +2,44 @@ import { fighterRepository } from "../repositories/fighterRepository.js";
 
 class FighterService {
   // TODO: Implement methods to work with fighters
-  showList(object) {
-    const list = fighterRepository.getAll(object);
-    if (list.length === 0) {
+  getAllFighters() {
+    const fighters = fighterRepository.getAll();
+    if (fighters.length === 0) {
+      return [];
+    }
+    return fighters;
+  }
+
+  getOneFighter(search) {
+    const fighter = fighterRepository.getOne(search);
+    if (!fighter) {
       return null;
     }
-
-    return list;
+    return fighter;
   }
 
   createFighter(body) {
-    const newFighter = fighterRepository.create(body);
-    if (!newFighter) {
+    const fighter = fighterRepository.create(body);
+    if (!fighter) {
       return null;
     }
-
-    return newFighter;
+    return fighter;
   }
 
-  updateFighter(id, changes) {
-    const updation = fighterRepository.update(id, changes);
-    if (!updation) {
+  updateFighter(id, body) {
+    const fighter = fighterRepository.update(id, body);
+    if (!fighter) {
       return null;
     }
-
-    return updation;
+    return fighter;
   }
 
   deleteFighter(id) {
-    const deletion = fighterRepository.delete(id);
-    if (deletion.length === 0) {
+    const fighter = fighterRepository.delete(id);
+    if (!fighter) {
       return null;
     }
-
-    return deletion;
-  }
-  search(search) {
-    const item = fighterRepository.getOne(search);
-    if (!item) {
-      return null;
-    }
-    return item;
+    return fighter;
   }
 }
 

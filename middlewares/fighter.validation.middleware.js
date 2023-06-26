@@ -2,77 +2,122 @@ import { FIGHTER } from "../models/fighter.js";
 
 const createFighterValid = (req, res, next) => {
   // TODO: Implement validatior for FIGHTER entity during creation
-  const temp = {};
+  const { name } = req.body;
 
-  Object.keys(req.body).forEach((elem) => {
-    if (!FIGHTER.hasOwnProperty(elem)) {
-      temp[elem] = `${elem} is not defined for fighter`;
-      return;
+  try {
+    const fighter = fighterService.getOneFighter({ name });
+    if (name === fighter?.name) {
+      throw new Error(`This fighter ${name} has already been created. `);
     }
-  });
 
-  if (!temp.health && req.body.health > 120 && req.body.health < 80) {
-    temp.health = "Health value must be from 80 to 120";
-  }
+    if (Object.keys(req.body).length !== Object.keys(FIGHTER).length - 1) {
+      throw new Error("Invalid number of fields.");
+    }
+    const requestedKeys = Object.keys(req.body);
+    const initialKeys = Object.keys(FIGHTER);
 
-  if (!temp.power && req.body.power > 10 && req.body.power < 1) {
-    temp.power = "Power value must be from 1 to 10";
-  }
+    for (let i = 0; i < requestedKeys.length; i++) {
+      if (!initialKeys.includes(requestedKeys[i])) {
+        throw new Error(`Invalid field ${requestedKeys[i]}.`);
+      }
+      if (!req.body[requestedKeys[i]]) {
+        throw new Error(`Empty field ${requestedKeys[i]}.`);
+      }
+    }
 
-  if (!temp.defense && req.body.defense > 10 && req.body.defense < 1) {
-    temp.defense = "Power value must be from 1 to 10";
-  }
-
-  if (!(Object.entries(temp).length === 0)) {
-    res.status(400).json({ error: true, message: JSON.stringify(temp) });
-  } else {
+    checkBodyRequest(req.body, FIGHTER);
+    res.data = { ...req.body };
     next();
+  } catch (err) {
+    res.status(400).send(err.message);
+    res.err = err;
   }
 };
 
 const updateFighterValid = (req, res, next) => {
   // TODO: Implement validatior for FIGHTER entity during update
-  const temp = {};
+  const { id } = req.params;
 
-  Object.keys(req.body).forEach((elem) => {
-    if (!fighter.hasOwnProperty(elem)) {
-      temp[elem] = `${elem} is not defined for fighter`;
-      return;
+  try {
+    const fighter = fighterService.getOneFighter({ id });
+    if (id !== fighter?.id) {
+      throw new Error(`This fighter id ${id} was not found.`);
     }
-  });
 
-  if (
-    req.body.health &&
-    !temp.health &&
-    req.body.health > 120 &&
-    req.body.health < 80
-  ) {
-    temp.health = "Health value must be from 80 to 120";
-  }
+    if (!Object.keys(req.body).length) {
+      throw new Error("No fields to update.");
+    }
 
-  if (
-    req.body.power &&
-    !temp.power &&
-    req.body.power > 10 &&
-    req.body.power < 1
-  ) {
-    temp.power = "Power value must be from 1 to 10";
-  }
+    const requestedKeys = Object.keys(req.body);
+    const initialKeys = Object.keys(FIGHTER);
 
-  if (
-    req.body.defense &&
-    !temp.defense &&
-    req.body.defense > 10 &&
-    req.body.defense < 1
-  ) {
-    temp.defense = "Power value must be from 1 to 10";
-  }
-
-  if (!(Object.entries(temp).length === 0)) {
-    res.status(400).json({ error: true, message: JSON.stringify(temp) });
-  } else {
+    for (let i = 0; i < requestedKeys.length; i++) {
+      if (!initialKeys.includes(requestedKeys[i])) {
+        throw new Error(`Invalid field ${requestedKeys[i]}.`);
+      }
+      if (!req.body[requestedKeys[i]]) {
+        throw new Error(`Empty field ${requestedKeys[i]}.`);
+      }
+    }
+    checkBodyRequest(req.body, FIGHTER);
+    res.data = { ...req.body };
     next();
+  } catch (err) {
+    res.status(400).send(err.message);
+    res.err = err;
   }
 };
+const checkBodyRequest = (body, model) => {
+  if (body.name) {
+    checkName(body.name);
+  }
+  if (body.power) {
+    checkPower(body.power);
+  }
+  if (body.defense) {
+    checkDefense(body.defense);
+  }
+  if (body.health) {
+    checkHealth(body.health);
+  }
+};
+
+const checkName = (name) => {
+  if (!name || !name.match(/^[a-zA-Z]+$/)) {
+    throw new Error("Invalid fighter name or empty field.");
+  }
+};
+
+const checkPower = (power) => {
+  if (
+    !power ||
+    isNaN(Number(power)) ||
+    Number(power) < 0 ||
+    Number(power) > 100
+  ) {
+    throw new Error("Power must be in the range 0 - 100.");
+  }
+};
+
+const checkDefense = (defense) => {
+  if (
+    !defense ||
+    isNaN(Number(defense)) ||
+    Number(defense) < 1 ||
+    Number(defense) > 10
+  ) {
+    throw new Error("Defence must be in the range 1 - 10.");
+  }
+};
+const checkHealth=(health)=>{
+  if (
+    !health ||
+    isNaN(Number(health)) ||
+    Number(health) < 20 ||
+    Number(health) > 120
+  ) {
+    throw new Error("Health must be in the range 80 - 120.");
+  }
+}
 
 export { createFighterValid, updateFighterValid };

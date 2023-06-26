@@ -12,116 +12,100 @@ const router = Router();
 router.get(
   "/",
   (req, res, next) => {
-    const listOfFighters = fighterService.showList("fighters");
-    if (!listOfFighters) {
-      res.status(404).json({
-        error: true,
-        messsage: "List of fighters is empty",
-      });
-    } else {
-      req.body = listOfFighters;
+    try {
+      res.data = fighterService.getAllFighters();
+    } catch (err) {
+      res.err = err;
+      res.status(404);
+    } finally {
       next();
     }
   },
-  responseMiddleware,
-  (req, res) => {
-    res.status(200).json({ "All fighters": req.body });
-  }
+  responseMiddleware
 );
 
 router.get(
   "/:id",
   (req, res, next) => {
-    const findOfFighter = fighterService.search({ id: req.params.id });
-    if (!findOfFighter) {
-      res.status(404).json({
-        error: true,
-        messsage: "Fighter is not found",
-      });
-    } else {
-      req.body = findOfFighter;
-      next();
+    const { id } = req.params;
+
+    try {
+      res.data = fighterService.getOneFighter({ id });
+      res.status(200);
+    } catch (err) {
+      res.err = err;
+      res.status(404);
+    } finally {
+      return next();
     }
   },
-  responseMiddleware,
-  (req, res) => {
-    res.status(200).json({ "Fighter found": req.body });
-  }
+  responseMiddleware
 );
 
 router.post(
   "/",
-  (req, res, next) => {
-    if (fighterService.search({ email: req.body.email })) {
-      res.status(400).json({
-        error: true,
-        messsage: "Email already exists",
-      });
-    } else {
-      next();
-    }
-  },
   createFighterValid,
   (req, res, next) => {
-    const createOfFighter = fighterService.createFighter(req.body);
-    if (!createOfFighter) {
-      res.status(400).json({
-        error: true,
-        messsage: "Failed to create fighter",
+    const { name, power, defense } = req.body;
+
+    try {
+      res.data = fighterService.createFighter({
+        name,
+        power,
+        defense,
+        health: 100,
       });
-    } else {
-      req.body = createOfFighter;
+      res.status(201);
+    } catch (err) {
+      res.err = err;
+      res.status(400);
+    } finally {
       next();
     }
   },
-  responseMiddleware,
-  (req, res) => {
-    res.status(200).json({ "Fighter created": req.body });
-  }
+  responseMiddleware
 );
 
 router.put(
   "/:id",
   updateFighterValid,
   (req, res, next) => {
-    const updateOfFighter = fighterService.updateFighter(
-      req.params.id,
-      req.body
-    );
-    if (!updateOfFighter) {
-      res.status(400).json({
-        error: true,
-        messsage: "Fighter is not updated",
-      });
-    } else {
-      req.body = updateOfFighter;
+    const { id } = req.params;
+
+    try {
+      res.data = fighterService.updateFighter(id, req.body);
+      res.status(200);
+    } catch (err) {
+      res.err = err;
+      res.status(400);
+    } finally {
       next();
     }
   },
-  responseMiddleware,
-  (req, res) => {
-    res.status(200).json({ "Fighter updated": req.body });
-  }
+  responseMiddleware
 );
 
 router.delete(
   "/:id",
   (req, res, next) => {
-    const deleteOfFighter = fighterService.deleteFighter(req.params.id);
-    if (!deleteOfFighter) {
-      res.status(404).json({
-        error: true,
-        messsage: "Fighter is not found",
-      });
-    } else {
-      req.body = deleteOfFighter;
+    const { id } = req.params;
+
+    try {
+      const fighter = fighterService.getOneFighter({ id });
+      if (id !== fighter?.id) {
+        throw new Error(`Fighter with id ${id} does not exist`);
+      }
+
+      res.data = fighterService.deleteFighter(id);
+      res.status(200);
+    } catch (err) {
+      res.err = err;
+      res.status(400);
+    } finally {
       next();
     }
   },
-  responseMiddleware,
-  (req, res) => {
-    res.status(200).json({ "Fighter deleted": req.body });
-  }
+  responseMiddleware
 );
 
 export { router };

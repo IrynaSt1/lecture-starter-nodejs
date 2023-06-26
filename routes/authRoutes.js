@@ -7,30 +7,26 @@ const router = Router();
 router.post(
   "/login",
   (req, res, next) => {
-   /* try {
+    try {
       // TODO: Implement login action (get the user if it exist with entered credentials)
-      authService.login(req.body);
-        console.log('route LOGIN');
+      const data = authService.login(req.body);
+      if (!data) {
+        throw new Error({
+          code: 401,
+          status: "Unauthorized",
+          message: "Email is wrong or phone number, or password is wrong.",
+        });
+      }
+
       res.data = data;
-      console.log(res.data, 'data');
+      res.status(200);
     } catch (err) {
       res.err = err;
-      console.log(res.err, 'err');
     } finally {
       next();
     }
   },
   responseMiddleware
-);*/
-const checkEmail = authService.login({ email: req.headers.authorization });
-
-    if(!checkEmail) {
-        res.status(404).json({ error: true, message: "User is not found" });
-    } else if(req.body.password !== checkEmail.password) {
-        res.status(403).json({ error: true, message: "Wrong password" });
-    } else {
-        res.status(200).json({ message: "Access granted" });
-    }
-});
+);
 
 export { router };

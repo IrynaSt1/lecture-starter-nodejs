@@ -2,38 +2,36 @@ import { userRepository } from "../repositories/userRepository.js";
 
 class UserService {
   // TODO: Implement methods to work with user
-  showList(object) {
-    const list = userRepository.getAll(object);
-    if(list.length === 0) {
-        return null;
+  getAllUsers() {
+    const users = userRepository.getAll();
+    if (users.length === 0) {
+      return [];
     }
-
-    return list;
-}
-
-createUser(body) {
-    const newUser = userRepository.create(body);
-    if(!newUser) {
-        return null;
+    return users;
+  }
+  createUser(user) {
+    const users = userRepository.create(user);
+    if (!users) {
+      return null;
     }
+    return users;
+  }
 
-    return newUser;
-}
-
-updateUser(id, changes) {
-    const updation = userRepository.update(id, changes);
-    console.log(chan, 'updated');
-    return updation;
-}
-
-deleteUser(id) {
-    const deletion = userRepository.delete(id);
-    if(deletion.length === 0) {
-        return null;
+  updateUser(id, body) {
+    const user = userRepository.update(id, body);
+    if (!user) {
+      return null;
     }
+    return user;
+  }
 
-    return deletion;
-}
+  deleteUser(id) {
+    const user = userRepository.delete(id);
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
   search(search) {
     const item = userRepository.getOne(search);
     if (!item) {
